@@ -1,5 +1,4 @@
 
-import { Card, CardContent } from "@/components/ui/card"
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts'
 
 const data = [
@@ -24,30 +23,30 @@ export default function DashboardDigitalPlay() {
       <h1 className="text-2xl font-bold">Dashboard – Whats Educador</h1>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card><CardContent className="p-4"><p className="text-sm">Impressões</p><p className="text-xl font-bold">178.806</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-sm">Alcance</p><p className="text-xl font-bold">94.443</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-sm">Cliques no link</p><p className="text-xl font-bold">644</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-sm">Conversas iniciadas</p><p className="text-xl font-bold">153</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-sm">CTR no link</p><p className="text-xl font-bold">0,36%</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-sm">CPCON</p><p className="text-xl font-bold">R$ 16,41</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-sm">Valor investido</p><p className="text-xl font-bold">R$ 2.509,99</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-sm">Receita total</p><p className="text-xl font-bold">R$ {receitaTotal.toLocaleString('pt-BR')}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-sm">Vendas confirmadas</p><p className="text-xl font-bold">{totalVendas}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-sm">CPA</p><p className="text-xl font-bold">R$ {cpa}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-sm">ROI</p><p className="text-xl font-bold">{roi}%</p></CardContent></Card>
+        <div><p className="text-sm">Impressões</p><p className="text-xl font-bold">178.806</p></div>
+        <div><p className="text-sm">Alcance</p><p className="text-xl font-bold">94.443</p></div>
+        <div><p className="text-sm">Cliques no link</p><p className="text-xl font-bold">644</p></div>
+        <div><p className="text-sm">Conversas iniciadas</p><p className="text-xl font-bold">153</p></div>
+        <div><p className="text-sm">CTR no link</p><p className="text-xl font-bold">0,36%</p></div>
+        <div><p className="text-sm">CPCON</p><p className="text-xl font-bold">R$ 16,41</p></div>
+        <div><p className="text-sm">Valor investido</p><p className="text-xl font-bold">R$ 2.509,99</p></div>
+        <div><p className="text-sm">Receita total</p><p className="text-xl font-bold">R$ {receitaTotal.toLocaleString('pt-BR')}</p></div>
+        <div><p className="text-sm">Vendas confirmadas</p><p className="text-xl font-bold">{totalVendas}</p></div>
+        <div><p className="text-sm">CPA</p><p className="text-xl font-bold">R$ {cpa}</p></div>
+        <div><p className="text-sm">ROI</p><p className="text-xl font-bold">{roi}%</p></div>
       </div>
 
       <div className="bg-white rounded-xl p-6 shadow">
         <h2 className="text-lg font-bold mb-4">Comparativo diário</h2>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data} margin={{ top: 5, right: 30, left: 0, bottom: 0 }}>
+          <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" />
             <YAxis />
             <Tooltip />
-            <Line type="monotone" dataKey="conversas" stroke="#8884d8" name="Conversas" />
-            <Line type="monotone" dataKey="vendas" stroke="#82ca9d" name="Vendas" />
-            <Line type="monotone" dataKey="receita" stroke="#f9a825" name="Receita" />
+            <Line type="monotone" dataKey="conversas" stroke="#8884d8" />
+            <Line type="monotone" dataKey="vendas" stroke="#82ca9d" />
+            <Line type="monotone" dataKey="receita" stroke="#f9a825" />
           </LineChart>
         </ResponsiveContainer>
       </div>
