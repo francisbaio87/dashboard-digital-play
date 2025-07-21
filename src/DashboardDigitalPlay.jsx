@@ -1,55 +1,108 @@
+import React, { useEffect, useState } from "react";
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer
+} from "recharts";
 
-import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts'
-
-const data = [
-  { date: '03/07', conversas: 4, vendas: 1, receita: 3816 },
-  { date: '04/07', conversas: 12, vendas: 2, receita: 12473.20 },
-  { date: '05/07', conversas: 8, vendas: 1, receita: 6236.60 },
-  { date: '06/07', conversas: 18, vendas: 3, receita: 18709.80 },
-  { date: '07/07', conversas: 20, vendas: 2, receita: 12049.20 },
-  { date: '08/07', conversas: 26, vendas: 1, receita: 3816 },
-  { date: '09/07', conversas: 65, vendas: 4, receita: 25000 },
-]
-
-const totalVendas = data.reduce((sum, item) => sum + item.vendas, 0)
-const receitaTotal = data.reduce((sum, item) => sum + item.receita, 0)
-const investimentoTotal = 2509.99
-const cpa = (investimentoTotal / totalVendas).toFixed(2)
-const roi = (((receitaTotal - investimentoTotal) / investimentoTotal) * 100).toFixed(2)
+const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSP2w3HgyyeeYEJI9g-iF26rSNKRZq2R8n1uzOyqMq_IPz8Ig0gAu3rtpqvrkZ7kU7HZMRfhAjNqxfi/pub?gid=0&single=true&output=csv";
 
 export default function DashboardDigitalPlay() {
+  const [dados, setDados] = useState([]);
+  const [resumo, setResumo] = useState({
+    receitaTotal: 0,
+    vendasConfirmadas: 0,
+    CPA: 0,
+    ROI: 0
+  });
+
+  const fetchData = () => {
+    fetch(SPREADSHEET_URL)
+      .then((res) => res.text())
+      .then((csv) => {
+        const linhas = csv.split("\n");
+        const cabecalho = linhas[0].split(",");
+
+        const statusIndex = cabecalho.findIndex(h => h.trim().toLowerCase() === "status");
+        const obsIndex = cabecalho.findIndex(h => h.trim().toLowerCase() === "observações");
+        const dataIndex = cabecalho.findIndex(h => h.trim().toLowerCase().includes("data"));
+        const investidoIndex = cabecalho.findIndex(h => h.trim().toLowerCase().includes("valor investido"));
+
+        let totalReceita = 0;
+        let vendas = 0;
+        let valorInvestido = 0;
+        const porData = {};
+
+        for (let i = 1; i < linhas.length; i++) {
+          const colunas = linhas[i].split(",");
+          const status = colunas[statusIndex]?.trim().toLowerCase();
+          const obs = colunas[obsIndex]?.trim();
+          const data = colunas[dataIndex]?.trim().split(" ")[0];
+          const investido = parseFloat(colunas[investidoIndex]?.replace(",", "."));
+
+          if (!isNaN(investido)) {
+            valorInvestido = investido;
+          }
+
+          if (status === "venda realizada" && obs) {
+            const match = obs.match(/(\d+)[xX][^\d]*(\d+[.,]?\d{0,2})/);
+            if (match) {
+              const parcelas = parseInt(match[1], 10);
+              const valorParcela = parseFloat(match[2].replace(",", "."));
+              const totalVenda = parcelas * valorParcela;
+
+              totalReceita += totalVenda;
+              vendas += 1;
+
+              if (!porData[data]) porData[data] = 0;
+              porData[data] += totalVenda;
+            }
+          }
+        }
+
+        const dadosGrafico = Object.entries(porData).map(([data, valor]) => ({
+          data,
+          valor: parseFloat(valor.toFixed(2))
+        }));
+
+        const CPA = vendas > 0 ? valorInvestido / vendas : 0;
+        const ROI = valorInvestido > 0 ? ((totalReceita - valorInvestido) / valorInvestido) * 100 : -100;
+
+        setResumo({
+          receitaTotal: totalReceita,
+          vendasConfirmadas: vendas,
+          CPA,
+          ROI
+        });
+
+        setDados(dadosGrafico);
+      });
+  };
+
+  useEffect(() => {
+    fetchData();
+
+    const interval = setInterval(fetchData, 5 * 60 * 1000); // a cada 5 minutos
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard – Whats Educador</h1>
+    <div style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
+      <h1 style={{ fontSize: "2rem", fontWeight: "bold" }}>Digital Play</h1>
+      <p><strong>Receita total:</strong><br />R$ {resumo.receitaTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
+      <p><strong>Vendas confirmadas:</strong><br />{resumo.vendasConfirmadas}</p>
+      <p><strong>CPA:</strong><br />R$ {resumo.CPA.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
+      <p><strong>ROI:</strong><br />{resumo.ROI.toFixed(2)}%</p>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div><p className="text-sm">Impressões</p><p className="text-xl font-bold">178.806</p></div>
-        <div><p className="text-sm">Alcance</p><p className="text-xl font-bold">94.443</p></div>
-        <div><p className="text-sm">Cliques no link</p><p className="text-xl font-bold">644</p></div>
-        <div><p className="text-sm">Conversas iniciadas</p><p className="text-xl font-bold">153</p></div>
-        <div><p className="text-sm">CTR no link</p><p className="text-xl font-bold">0,36%</p></div>
-        <div><p className="text-sm">CPCON</p><p className="text-xl font-bold">R$ 16,41</p></div>
-        <div><p className="text-sm">Valor investido</p><p className="text-xl font-bold">R$ 2.509,99</p></div>
-        <div><p className="text-sm">Receita total</p><p className="text-xl font-bold">R$ {receitaTotal.toLocaleString('pt-BR')}</p></div>
-        <div><p className="text-sm">Vendas confirmadas</p><p className="text-xl font-bold">{totalVendas}</p></div>
-        <div><p className="text-sm">CPA</p><p className="text-xl font-bold">R$ {cpa}</p></div>
-        <div><p className="text-sm">ROI</p><p className="text-xl font-bold">{roi}%</p></div>
-      </div>
-
-      <div className="bg-white rounded-xl p-6 shadow">
-        <h2 className="text-lg font-bold mb-4">Comparativo diário</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
+      <h2 style={{ marginTop: "2rem" }}>📊 Comparativo diário</h2>
+      <div style={{ width: "100%", height: 300 }}>
+        <ResponsiveContainer>
+          <BarChart data={dados}>
+            <XAxis dataKey="data" />
             <YAxis />
-            <Tooltip />
-            <Line type="monotone" dataKey="conversas" stroke="#8884d8" />
-            <Line type="monotone" dataKey="vendas" stroke="#82ca9d" />
-            <Line type="monotone" dataKey="receita" stroke="#f9a825" />
-          </LineChart>
+            <Tooltip formatter={(value) => `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`} />
+            <Bar dataKey="valor" fill="#3182CE" />
+          </BarChart>
         </ResponsiveContainer>
       </div>
     </div>
-  )
+  );
 }
