@@ -3,7 +3,8 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer
 } from "recharts";
 
-const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSP2w3HgyyeeYEJI9g-iF26rSNKRZq2R8n1uzOyqMq_IPz8Ig0gAu3rtpqvrkZ7kU7HZMRfhAjNqxfi/pub?gid=0&single=true&output=csv";
+const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQKr7FgEUpz2AtPXj-m5ijT7QSGUXoNQx_BhzS11pa4/pub?output=csv&cachebust=" + Date.now();
+
 
 export default function DashboardDigitalPlay() {
   const [dados, setDados] = useState([]);
