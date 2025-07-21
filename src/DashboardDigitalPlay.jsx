@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer
-} from "recharts";
+  BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
+} from 'recharts';
+
 
 const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQKr7FgEUpz2AtPXj-m5ijT7QSGUXoNQx_BhzS11pa4/pub?output=csv&cachebust=" + Date.now();
 
